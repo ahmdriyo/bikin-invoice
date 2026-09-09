@@ -1,4 +1,5 @@
 "use client"
+/* eslint-disable @next/next/no-img-element */
 
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
@@ -163,20 +164,20 @@ export default function ContractBuilder() {
               <div><Label>Pihak 1 Peran</Label><Select value={form.party1Role} onChange={e=>setForm({...form, party1Role:e.target.value})} className="mt-1"><option>PT</option><option>CV</option><option>Personal</option><option>Yayasan</option></Select></div>
               <div><Label>Pihak 2 Nama</Label><Input value={form.party2Name} onChange={e=>setForm({...form, party2Name:e.target.value})} className="mt-1 rounded-full" /></div>
               <div><Label>Pihak 2 Peran</Label><Select value={form.party2Role} onChange={e=>setForm({...form, party2Role:e.target.value})} className="mt-1"><option>PT</option><option>CV</option><option>Personal</option><option>Yayasan</option></Select></div>
-              <div><Label>Status</Label><Select value={form.status} onChange={e=>setForm({...form, status:e.target.value as any})} className="mt-1"><option value="planned">Planned</option><option value="in_progress">In Progress</option><option value="done">Done</option></Select></div>
-              <div><Label>Template</Label><Select value={form.templateId} onChange={e=>setForm({...form, templateId:e.target.value as any})} className="mt-1"><option value="minimal">Minimal</option><option value="corporate">Corporate</option><option value="creative">Creative</option></Select></div>
+              <div><Label>Status</Label><Select value={form.status} onChange={e=>setForm({...form, status:e.target.value as unknown as Contract['status']})} className="mt-1"><option value="planned">Planned</option><option value="in_progress">In Progress</option><option value="done">Done</option></Select></div>
+              <div><Label>Template</Label><Select value={form.templateId} onChange={e=>setForm({...form, templateId:e.target.value as unknown as Contract['templateId']})} className="mt-1"><option value="minimal">Minimal</option><option value="corporate">Corporate</option><option value="creative">Creative</option></Select></div>
             </div>
           </Card>
 
           <Card className="p-5">
             <h3 className="text-[14px] font-medium mb-4">Opsi Kontrak — Dropdown Opsi B</h3>
             <div className="grid grid-cols-2 gap-4">
-              <div><Label>Durasi Pengerjaan</Label><Select value={form.duration} onChange={e=>setForm({...form, duration:e.target.value as any})} className="mt-1"><option value="7">7 Hari</option><option value="14">14 Hari</option><option value="21">21 Hari</option><option value="30">30 Hari</option><option value="60">60 Hari</option><option value="custom">Custom</option></Select></div>
-              <div><Label>Jumlah Revisi</Label><Select value={form.revisi} onChange={e=>setForm({...form, revisi:e.target.value as any})} className="mt-1"><option value="1">1x</option><option value="2">2x</option><option value="3">3x</option><option value="5">5x</option><option value="unlimited">Unlimited (selama scope)</option></Select></div>
-              <div><Label>Garansi/Maintenance</Label><Select value={form.warranty} onChange={e=>setForm({...form, warranty:e.target.value as any})} className="mt-1"><option value="7">7 Hari</option><option value="30">30 Hari</option><option value="90">90 Hari</option><option value="none">Tidak Ada Garansi</option></Select></div>
-              <div><Label>Hak Cipta</Label><Select value={form.ipRights} onChange={e=>setForm({...form, ipRights:e.target.value as any})} className="mt-1"><option value="client">Milik Client setelah lunas</option><option value="dev">Milik Developer hingga lunas</option><option value="shared">Bagi Pakai</option></Select></div>
+              <div><Label>Durasi Pengerjaan</Label><Select value={form.duration} onChange={e=>setForm({...form, duration:e.target.value as unknown as Contract['duration']})} className="mt-1"><option value="7">7 Hari</option><option value="14">14 Hari</option><option value="21">21 Hari</option><option value="30">30 Hari</option><option value="60">60 Hari</option><option value="custom">Custom</option></Select></div>
+              <div><Label>Jumlah Revisi</Label><Select value={form.revisi} onChange={e=>setForm({...form, revisi:e.target.value as unknown as Contract['revisi']})} className="mt-1"><option value="1">1x</option><option value="2">2x</option><option value="3">3x</option><option value="5">5x</option><option value="unlimited">Unlimited (selama scope)</option></Select></div>
+              <div><Label>Garansi/Maintenance</Label><Select value={form.warranty} onChange={e=>setForm({...form, warranty:e.target.value as unknown as Contract['warranty']})} className="mt-1"><option value="7">7 Hari</option><option value="30">30 Hari</option><option value="90">90 Hari</option><option value="none">Tidak Ada Garansi</option></Select></div>
+              <div><Label>Hak Cipta</Label><Select value={form.ipRights} onChange={e=>setForm({...form, ipRights:e.target.value as unknown as Contract['ipRights']})} className="mt-1"><option value="client">Milik Client setelah lunas</option><option value="dev">Milik Developer hingga lunas</option><option value="shared">Bagi Pakai</option></Select></div>
               <div><Label>Materai</Label><Select value={form.materai?'true':'false'} onChange={e=>setForm({...form, materai:e.target.value==='true'})} className="mt-1"><option value="true">Pakai Materai Rp10.000</option><option value="false">Tidak Pakai</option></Select></div>
-              <div><Label>Tanda Tangan</Label><Select value={String(form.signCount)} onChange={e=>setForm({...form, signCount:Number(e.target.value) as any})} className="mt-1"><option value="1">1 Pihak</option><option value="2">2 Pihak</option><option value="3">3 Pihak (+ Saksi)</option></Select></div>
+              <div><Label>Tanda Tangan</Label><Select value={String(form.signCount)} onChange={e=>setForm({...form, signCount:Number(e.target.value) as unknown as Contract['signCount']})} className="mt-1"><option value="1">1 Pihak</option><option value="2">2 Pihak</option><option value="3">3 Pihak (+ Saksi)</option></Select></div>
               {form.signCount===3 && <div className="col-span-2"><Label>Nama Saksi</Label><Input value={form.witnessName} onChange={e=>setForm({...form, witnessName:e.target.value})} placeholder="Nama saksi" className="mt-1 rounded-full" /></div>}
             </div>
             <Button onClick={generate} disabled={loading} className="w-full mt-4 bg-[#111827] hover:bg-black">

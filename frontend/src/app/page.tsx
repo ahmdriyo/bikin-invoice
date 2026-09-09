@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card'
 import { KanbanColumn, InvoiceCard, ContractCard } from '@/components/kanban/KanbanColumn'
 import { useAppStore } from '@/store/useAppStore'
 import { formatRupiahShort } from '@/lib/utils'
+import type { Invoice, Contract } from '@/types'
 
 export default function Dashboard() {
   const { invoices, contracts, clients } = useAppStore()
@@ -27,16 +28,17 @@ export default function Dashboard() {
     return contracts.filter(k => k.number.toLowerCase().includes(s) || k.title.toLowerCase().includes(s))
   }, [contracts, q])
 
-  const invBy = (status: string) => filteredInvoices.filter(i=>i.status===status)
+  const normalizeInvStatus = (s: string) => s==='planned' || s==='in_progress' ? 'proses' : s==='done' ? 'selesai' : s
+  const invBy = (status: string) => filteredInvoices.filter(i=>normalizeInvStatus(i.status)===status)
   const kBy = (status: string) => filteredContracts.filter(k=>k.status===status)
-  const totalPlanned = filteredInvoices.filter(i=>i.status==='planned').reduce((a,b)=>a+b.total,0)
-  const totalDone = filteredInvoices.filter(i=>i.status==='done').reduce((a,b)=>a+b.total,0)
+  const totalProses = filteredInvoices.filter(i=>normalizeInvStatus(i.status)==='proses').reduce((a,b)=>a+b.total,0)
+  const totalSelesai = filteredInvoices.filter(i=>normalizeInvStatus(i.status)==='selesai').reduce((a,b)=>a+b.total,0)
 
-  const onDrop = (e: React.DragEvent, target: 'planned'|'in_progress'|'done', type: 'inv'|'k') => {
+  const onDrop = (e: React.DragEvent, target: string, type: 'inv'|'k') => {
     e.preventDefault()
     if (!dragId) return
-    if (type==='inv') updateInvoice(dragId, { status: target })
-    else updateContract(dragId, { status: target })
+    if (type==='inv') updateInvoice(dragId, { status: target as Invoice['status'] })
+    else updateContract(dragId, { status: target as Contract['status'] })
     setDragId(null)
   }
 
@@ -59,19 +61,19 @@ export default function Dashboard() {
         </div>
         <div className="grid grid-cols-4 gap-4 mt-4">
           <Card className="p-4">
-            <div className="text-[11px] text-[#6B7280] uppercase tracking-wide">Total Planned</div>
-            <div className="text-[18px] font-semibold text-[#111827] mt-1">{formatRupiahShort(totalPlanned)}</div>
-            <div className="text-[11px] text-[#9CA3AF]">{invBy('planned').length} invoice</div>
+            <div className="text-[11px] text-[#6B7280] uppercase tracking-wide">Proses</div>
+            <div className="text-[18px] font-semibold text-[#F59E0B] mt-1">{formatRupiahShort(totalProses)}</div>
+            <div className="text-[11px] text-[#9CA3AF]">{invBy('proses').length} invoice • {invBy('proses').filter(i=>i.kind==='dp').length} DP • {invBy('proses').filter(i=>i.kind==='pelunasan').length} pelunasan</div>
           </Card>
           <Card className="p-4">
-            <div className="text-[11px] text-[#6B7280] uppercase tracking-wide">In Progress</div>
-            <div className="text-[18px] font-semibold text-[#F59E0B] mt-1">{invBy('in_progress').length} invoice</div>
-            <div className="text-[11px] text-[#9CA3AF]">{kBy('in_progress').length} kontrak</div>
+            <div className="text-[11px] text-[#6B7280] uppercase tracking-wide">Selesai</div>
+            <div className="text-[18px] font-semibold text-[#10B981] mt-1">{formatRupiahShort(totalSelesai)}</div>
+            <div className="text-[11px] text-[#9CA3AF]">{invBy('selesai').length} invoice lunas</div>
           </Card>
           <Card className="p-4">
-            <div className="text-[11px] text-[#6B7280] uppercase tracking-wide">Done</div>
-            <div className="text-[18px] font-semibold text-[#10B981] mt-1">{formatRupiahShort(totalDone)}</div>
-            <div className="text-[11px] text-[#9CA3AF]">{invBy('done').length} invoice lunas</div>
+            <div className="text-[11px] text-[#6B7280] uppercase tracking-wide">Total Invoice</div>
+            <div className="text-[18px] font-semibold text-[#111827] mt-1">{filteredInvoices.length} invoice</div>
+            <div className="text-[11px] text-[#9CA3AF]">DP {filteredInvoices.filter(i=>i.kind==='dp').length} • Pelunasan {filteredInvoices.filter(i=>i.kind==='pelunasan').length}</div>
           </Card>
           <Card className="p-4">
             <div className="text-[11px] text-[#6B7280] uppercase tracking-wide">Kontrak Aktif</div>
@@ -82,11 +84,11 @@ export default function Dashboard() {
       </div>
 
       <div className="p-6">
-        <h2 className="text-[14px] font-medium text-[#111827] mb-4">Invoices — Kanban</h2>
+        <h2 className="text-[14px] font-medium text-[#111827] mb-4">Invoices — Kanban (Skema Terpisah)</h2>
         <div className="flex gap-6 overflow-x-auto pb-4">
-          {(['planned','in_progress','done'] as const).map(col => (
+          {(['proses','selesai'] as const).map(col => (
             <div key={col} onDragOver={e=>e.preventDefault()} onDrop={e=>onDrop(e,col,'inv')} className="w-[320px] shrink-0">
-              <KanbanColumn title={col==='planned'?'Planned':col==='in_progress'?'In Progress':'Done'} count={invBy(col).length} variant={col==='planned'?'planned':col==='in_progress'?'inProgress':'done'}>
+              <KanbanColumn title={col==='proses'?'Proses — DP':col==='selesai'?'Selesai — Pelunasan':'Draft'} count={invBy(col).length} variant={col==='proses'?'inProgress':col==='selesai'?'done':'planned'}>
                 {invBy(col).map(inv => {
                   const cl = clients.find(c=>c.id===inv.clientId)
                   return (
@@ -99,6 +101,20 @@ export default function Dashboard() {
               </KanbanColumn>
             </div>
           ))}
+          {/* Draft column opsional */}
+          <div onDragOver={e=>e.preventDefault()} onDrop={e=>onDrop(e,'draft','inv')} className="w-[320px] shrink-0">
+            <KanbanColumn title="Draft" count={invBy('draft').length} variant="planned">
+              {invBy('draft').map(inv => {
+                const cl = clients.find(c=>c.id===inv.clientId)
+                return (
+                  <div key={inv.id} draggable onDragStart={()=>setDragId(inv.id)} className={dragId===inv.id?'opacity-50':''}>
+                    <Link href={`/invoices/${inv.id}`}><InvoiceCard inv={inv} client={cl} /></Link>
+                  </div>
+                )
+              })}
+              {invBy('draft').length===0 && <div className="h-[100px] rounded-[12px] border border-dashed border-[#E5E7EB] bg-white/50 flex items-center justify-center text-[12px] text-[#9CA3AF]">Drop di sini</div>}
+            </KanbanColumn>
+          </div>
         </div>
 
         <h2 className="text-[14px] font-medium text-[#111827] mt-8 mb-4">Kontrak — Kanban</h2>

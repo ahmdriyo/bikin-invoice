@@ -1,4 +1,4 @@
-export type InvoiceStatus = 'planned' | 'in_progress' | 'done'
+export type InvoiceStatus = 'proses' | 'selesai' | 'draft' | 'planned' | 'in_progress' | 'done'
 export type ContractStatus = 'planned' | 'in_progress' | 'done'
 export type ProjectStatus = 'planned' | 'in_progress' | 'done'
 
@@ -47,8 +47,14 @@ export type Invoice = {
   taxMode: 'none' | 'add11' | 'include'
   taxValue: number
   total: number
-  termin: '50/50' | '25/75' | '30/40/30' | '100' | '4x' | 'custom' // custom bisa untuk DP 2% atau termin lain
+  termin: '50/50' | '25/75' | '30/40/30' | '100' | '4x' | 'custom' // deprecated, pakai terminDP/terminPelunasan untuk baru
+  terminDP?: '50' | '25' | '30' | '2' | '75' | '70' | '98' | '100' | 'custom'
+  terminPelunasan?: '50' | '25' | '75' | '70' | '30' | '100' | '98' | '2' | 'custom'
+  terminDPCustom?: number
+  terminPelunasanCustom?: number
   terminDetails?: { date: string; percent: number; amount: number }[]
+  // Skema terpisah DP vs Pelunasan — very recommended
+  kind?: 'dp' | 'pelunasan' // dp = tagih DP di awal (syarat kickoff), pelunasan = rekap total - DP, tagih sisa
   paymentMethod: 'transfer' | 'qris' | 'cash' | 'termin'
   dueMode: '1' | '3' | '7' | '14' | '30' | 'custom'
   dueDate: string

@@ -1,4 +1,5 @@
 "use client"
+/* eslint-disable @next/next/no-img-element */
 
 import { useAppStore } from '@/store/useAppStore'
 import { Card } from '@/components/ui/card'
@@ -15,9 +16,13 @@ export default function Settings() {
   const [form, setForm] = useState(settings)
   const [stats, setStats] = useState<{clients:number;projects:number;invoices:number;contracts:number} | null>(null)
 
-  useEffect(() => { setForm(settings) }, [settings])
+  // Sinkron form saat settings dari SQLite selesai load (tanpa cascading render warning)
   useEffect(() => {
-    sqlite.getStats().then((s)=> setStats(s as any)).catch(()=>{})
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setForm(settings)
+  }, [settings])
+  useEffect(() => {
+    sqlite.getStats().then((s)=> setStats(s)).catch(()=>{})
   }, [settings])
 
   const save = async () => { await updateSettings(form); alert('Settings disimpan di SQLite lokal (IndexedDB)') }

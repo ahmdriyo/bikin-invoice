@@ -39,9 +39,9 @@ export default function Projects() {
   const submit = () => {
     if (!form.title || !form.clientId) return alert('Judul & Client wajib')
     if (editingId) {
-      updateProject(editingId, { title: form.title!, category: form.category as any, description: form.description||'', priceEstimate: Number(form.priceEstimate)||0, deadline: form.deadline, status: form.status as any, clientId: form.clientId! })
+      updateProject(editingId, { title: form.title!, category: form.category as unknown as Project['category'], description: form.description||'', priceEstimate: Number(form.priceEstimate)||0, deadline: form.deadline, status: form.status as unknown as Project['status'], clientId: form.clientId! })
     } else {
-      addProject({ id:'p'+Date.now(), title: form.title!, category: form.category as any, description: form.description||'', priceEstimate: Number(form.priceEstimate)||0, deadline: form.deadline, status: form.status as any, clientId: form.clientId!, createdAt: new Date().toISOString().slice(0,10) })
+      addProject({ id:'p'+Date.now(), title: form.title!, category: form.category as unknown as Project['category'], description: form.description||'', priceEstimate: Number(form.priceEstimate)||0, deadline: form.deadline, status: form.status as unknown as Project['status'], clientId: form.clientId!, createdAt: new Date().toISOString().slice(0,10) })
     }
     close()
   }
@@ -90,8 +90,8 @@ export default function Projects() {
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div className="col-span-2"><Label>Client *</Label><Select value={form.clientId} onChange={e=>setForm({...form, clientId:e.target.value})} className="mt-1">{clients.map(c=><option key={c.id} value={c.id}>{c.company} — {c.name}</option>)}</Select></div>
               <div className="col-span-2"><Label>Judul *</Label><Input value={form.title} onChange={e=>setForm({...form, title:e.target.value})} placeholder="Website Company Profile 5 Halaman" className="mt-1 rounded-full" /></div>
-              <div><Label>Kategori</Label><Select value={form.category} onChange={e=>setForm({...form, category:e.target.value as any})} className="mt-1"><option>Company Profile</option><option>E-commerce</option><option>Custom</option><option>Landing Page</option></Select></div>
-              <div><Label>Status</Label><Select value={form.status} onChange={e=>setForm({...form, status:e.target.value as any})} className="mt-1"><option value="planned">Planned</option><option value="in_progress">In Progress</option><option value="done">Done</option></Select></div>
+              <div><Label>Kategori</Label><Select value={form.category} onChange={e=>setForm({...form, category:e.target.value as unknown as Project['category']})} className="mt-1"><option>Company Profile</option><option>E-commerce</option><option>Custom</option><option>Landing Page</option></Select></div>
+              <div><Label>Status</Label><Select value={form.status} onChange={e=>setForm({...form, status:e.target.value as unknown as Project['status']})} className="mt-1"><option value="planned">Planned</option><option value="in_progress">In Progress</option><option value="done">Done</option></Select></div>
               <div><Label>Estimasi Harga</Label><Input type="number" value={form.priceEstimate} onChange={e=>setForm({...form, priceEstimate:Number(e.target.value)})} className="mt-1 rounded-full" /></div>
               <div><Label>Deadline</Label><Input type="date" value={form.deadline||''} onChange={e=>setForm({...form, deadline:e.target.value})} className="mt-1 rounded-full" /></div>
               <div className="col-span-2"><Label>Deskripsi</Label><Input value={form.description} onChange={e=>setForm({...form, description:e.target.value})} placeholder="Desain & development..." className="mt-1 rounded-full" /></div>

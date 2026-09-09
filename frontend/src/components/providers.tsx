@@ -123,13 +123,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
       try {
         await sqlite.init()
         await seedIfEmpty()
-        ;(window as any).sqlite = sqlite
+        ;(window as unknown as { sqlite: typeof sqlite }).sqlite = sqlite
       } catch (e) {
         console.error('[DB] init failed', e)
       }
       if (!cancelled) {
         setBooted(true)
-        loadAll().catch(e => console.error('[App] loadAll failed', e))
+        loadAll().catch((e: unknown) => console.error('[App] loadAll failed', e))
       }
     }
     boot()

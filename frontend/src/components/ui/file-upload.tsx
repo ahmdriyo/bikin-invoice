@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import * as React from "react"
 import { Upload, X, Image as ImageIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
