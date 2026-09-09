@@ -1,4 +1,4 @@
-import { dummyClausesMock } from "@/data/dummy"
+import { seederClausesMock } from "@/db/defaultSeeder"
 
 export async function generateContractMock(opts: {
   duration: string
@@ -18,9 +18,9 @@ export async function generateContractMock(opts: {
   const revisiStr = opts.revisi === 'unlimited' ? 'tanpa batas selama scope' : `${opts.revisi}x`
   const warrantyStr = opts.warranty === 'none' ? 'tanpa garansi' : `${opts.warranty} hari`
   const ipStr = opts.ipRights === 'client' ? 'milik Client setelah pelunasan' : opts.ipRights === 'dev' ? 'milik Developer hingga pelunasan' : 'bagi pakai'
-  const terminStr = opts.termin === '50/50' ? '50% DP — 50% Pelunasan' : opts.termin === '30/40/30' ? '30% — 40% — 30%' : opts.termin
+  const terminStr = opts.termin === '50/50' ? 'DP 50% — Pelunasan 50%' : opts.termin === '25/75' ? 'DP 25% — Pelunasan 75%' : opts.termin === '30/40/30' ? '30% — 40% — 30%' : opts.termin === '100' ? '100% di Awal' : opts.termin === '4x' ? '4x Termin 25%' : opts.termin
 
-  return dummyClausesMock.map((c, idx) => ({
+  return seederClausesMock.map((c, idx) => ({
     id: `cl-${Date.now()}-${idx}`,
     title: c.title,
     content: c.content

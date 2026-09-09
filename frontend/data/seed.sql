@@ -5,8 +5,8 @@ CREATE TABLE contracts (id TEXT PRIMARY KEY, number TEXT UNIQUE, client_id TEXT,
 CREATE TABLE settings (id TEXT PRIMARY KEY, data TEXT);
 CREATE TABLE counters (year TEXT PRIMARY KEY, last_invoice_seq INTEGER, last_contract_seq INTEGER);
 
--- Seeder Default — Bikin Invoice v1 (sql.js)
--- Generated: 2026-09-09T02:25:52.256Z
+-- Seeder — Bikin Invoice v2 (sql.js) — sumber: src/db/defaultSeeder.ts → SQLite
+-- Generated: 2026-09-09T03:28:24.503Z
 -- Clients: 10, Projects: 8, Invoices: 12, Contracts: 6
 
 -- Data inserts omitted (binary .db is source of truth, sql dump for schema only)

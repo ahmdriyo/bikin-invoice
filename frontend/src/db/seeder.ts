@@ -29,17 +29,7 @@ export async function runDefaultSeeder(options?: { force?: boolean }) {
 
 export async function clearAndSeedEmpty() {
   await sqlite.reset()
-  await repo.saveSettings({
-    businessName: 'Arka Studio',
-    address: 'Jl. Teknologi No. 9, Jakarta Selatan 12190',
-    phone: '+6281234567899',
-    email: 'hello@arkastudio.id',
-    bankName: 'BCA',
-    bankAccount: '1234567890',
-    bankHolder: 'Arka Studio',
-    defaultTerms: 'Pembayaran via Transfer BCA. DP 50% sebelum pengerjaan, pelunasan sebelum serah terima.',
-    defaultNotes: 'Terima kasih atas kepercayaan Anda.',
-  })
+  await repo.saveSettings(defaultSettings)
   return sqlite.getStats()
 }
 

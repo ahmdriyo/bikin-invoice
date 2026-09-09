@@ -25,6 +25,34 @@ function calcTotal(items: InvoiceItem[], discountType: 'percent'|'fixed', discou
   return { subtotal, disc, tax, total }
 }
 
+function addDays(dateStr: string, days: number) {
+  const d = new Date(dateStr)
+  if (isNaN(d.getTime())) return dateStr
+  d.setDate(d.getDate() + days)
+  return d.toISOString().slice(0,10)
+}
+function calcDueDate(issueDate: string, dueMode: string) {
+  const map: Record<string, number> = { '1':1, '3':3, '7':7, '14':14, '30':30 }
+  const days = map[dueMode]
+  if (days === undefined) return null
+  return addDays(issueDate, days)
+}
+function terminLabel(t: string) {
+  const m: Record<string,string> = {
+    '50/50': 'DP 50% - Pelunasan 50%',
+    '25/75': 'DP 25% - Pelunasan 75%',
+    '30/40/30': '30% - 40% - 30%',
+    '100': '100% di Awal',
+    '4x': '4x Termin (25%)',
+    'custom': 'Custom',
+  }
+  return m[t] || t
+}
+function dueLabel(m: string) {
+  const map: Record<string,string> = { '1':'1 Hari','3':'3 Hari','7':'7 Hari','14':'14 Hari','30':'30 Hari','custom':'Tanggal Custom' }
+  return map[m] || m
+}
+
 export default function InvoiceBuilder() {
   const params = useParams(); const id = params.id as string
   const router = useRouter()
@@ -48,7 +76,7 @@ export default function InvoiceBuilder() {
   })
 
   const { subtotal, disc, tax, total } = useMemo(()=> calcTotal(form.items||[], form.discountType||'fixed', form.discountValue||0, form.taxMode||'none'), [form.items, form.discountType, form.discountValue, form.taxMode])
-  const dp = form.termin==='50/50' ? Math.round(total*0.5) : form.termin==='30/40/30' ? Math.round(total*0.3) : form.termin==='100' ? total : form.termin==='4x' ? Math.round(total*0.25) : 0
+  const dp = form.termin==='50/50' ? Math.round(total*0.5) : form.termin==='25/75' ? Math.round(total*0.25) : form.termin==='30/40/30' ? Math.round(total*0.3) : form.termin==='100' ? total : form.termin==='4x' ? Math.round(total*0.25) : 0
 
   const addItem = () => setForm({...form, items: [...(form.items||[]), {id:'it'+Date.now(), name:'Item Baru', desc:'', qty:1, unit:'paket', price:0, discount:0}]})
   const updateItem = (idx:number, patch: Partial<InvoiceItem>) => setForm({...form, items: form.items!.map((x,i)=> i===idx?{...x,...patch}:x)})
@@ -140,7 +168,11 @@ export default function InvoiceBuilder() {
               <div><Label>Project</Label><Select value={form.projectId} onChange={e=>setForm({...form, projectId:e.target.value})} className="mt-1"><option value="">— Tanpa Project —</option>{projects.map(p=><option key={p.id} value={p.id}>{p.title}</option>)}</Select></div>
               <div><Label>No. Invoice</Label><Input value={form.number} onChange={e=>setForm({...form, number:e.target.value})} className="mt-1" /></div>
               <div><Label>Status</Label><Select value={form.status} onChange={e=>setForm({...form, status:e.target.value as any})} className="mt-1"><option value="planned">Planned</option><option value="in_progress">In Progress</option><option value="done">Done</option></Select></div>
-              <div><Label>Tgl Terbit</Label><Input type="date" value={form.issueDate} onChange={e=>setForm({...form, issueDate:e.target.value})} className="mt-1" /></div>
+              <div><Label>Tgl Terbit</Label><Input type="date" value={form.issueDate} onChange={e=> {
+                const issue = e.target.value
+                const auto = calcDueDate(issue, form.dueMode || '14')
+                setForm(prev=> ({...prev, issueDate: issue, ...(auto ? {dueDate: auto} : {})}))
+              }} className="mt-1" /></div>
               <div><Label>Template</Label><Select value={form.templateId} onChange={e=>setForm({...form, templateId:e.target.value as any})} className="mt-1"><option value="minimal">Minimal</option><option value="corporate">Corporate</option><option value="creative">Creative</option></Select></div>
             </div>
           </Card>
@@ -164,10 +196,14 @@ export default function InvoiceBuilder() {
           <Card className="p-5">
             <h3 className="text-[14px] font-medium mb-4">Ketentuan — Dropdown Opsi A</h3>
             <div className="grid grid-cols-2 gap-4">
-              <div><Label>Termin Pembayaran *</Label><Select value={form.termin} onChange={e=>setForm({...form, termin:e.target.value as any})} className="mt-1"><option value="50/50">50% DP - 50% Pelunasan</option><option value="30/40/30">30% - 40% - 30%</option><option value="100">100% di Awal</option><option value="4x">4x Termin (25%)</option><option value="custom">Custom</option></Select></div>
+              <div><Label>Termin Pembayaran *</Label><Select value={form.termin} onChange={e=>setForm({...form, termin:e.target.value as any})} className="mt-1"><option value="50/50">DP 50% - Pelunasan 50%</option><option value="25/75">DP 25% - Pelunasan 75%</option><option value="30/40/30">30% - 40% - 30%</option><option value="100">100% di Awal</option><option value="4x">4x Termin (25%)</option><option value="custom">Custom</option></Select></div>
               <div><Label>Metode Pembayaran</Label><Select value={form.paymentMethod} onChange={e=>setForm({...form, paymentMethod:e.target.value as any})} className="mt-1"><option value="transfer">Transfer Bank</option><option value="qris">QRIS</option><option value="cash">Cash</option><option value="termin">Termin Bertahap</option></Select></div>
               <div><Label>PPN</Label><Select value={form.taxMode} onChange={e=>setForm({...form, taxMode:e.target.value as any})} className="mt-1"><option value="none">Tanpa PPN</option><option value="add11">PPN 11% Ditambahkan</option><option value="include">PPN Sudah Termasuk</option></Select></div>
-              <div><Label>Jatuh Tempo</Label><Select value={form.dueMode} onChange={e=>setForm({...form, dueMode:e.target.value as any})} className="mt-1"><option value="7">7 Hari</option><option value="14">14 Hari</option><option value="30">30 Hari</option><option value="custom">Tanggal Custom</option></Select></div>
+              <div><Label>Jatuh Tempo</Label><Select value={form.dueMode} onChange={e=> {
+                const mode = e.target.value
+                const auto = calcDueDate(form.issueDate || new Date().toISOString().slice(0,10), mode)
+                setForm(prev=> ({...prev, dueMode: mode as any, ...(auto ? {dueDate: auto} : {})}))
+              }} className="mt-1"><option value="1">1 Hari</option><option value="3">3 Hari</option><option value="7">7 Hari</option><option value="14">14 Hari</option><option value="30">30 Hari</option><option value="custom">Tanggal Custom</option></Select></div>
               <div><Label>Denda Keterlambatan</Label><Select value={form.lateFee} onChange={e=>setForm({...form, lateFee:e.target.value as any})} className="mt-1"><option value="none">Tanpa Denda</option><option value="1day">1% per Hari</option><option value="1week">1% per Minggu</option><option value="custom">Custom</option></Select></div>
               <div><Label>Biaya Tambahan</Label><Select value={form.extraCost} onChange={e=>setForm({...form, extraCost:e.target.value as any})} className="mt-1"><option value="none">Tanpa Biaya Tambahan</option><option value="revisi">Revisi di luar scope Rp/hari</option><option value="maintenance">Maintenance opsional</option></Select></div>
               <div><Label>Jatuh Tempo Tanggal</Label><Input type="date" value={form.dueDate} onChange={e=>setForm({...form, dueDate:e.target.value})} className="mt-1 rounded-full" /></div>
@@ -214,8 +250,8 @@ export default function InvoiceBuilder() {
                 </div>
                 <div className="text-right">
                   <div className="text-[#6B7280]">Tgl Terbit: {form.issueDate}</div>
-                  <div className="text-[#6B7280]">Jatuh Tempo: {form.dueDate} ({form.dueMode})</div>
-                  <div className="text-[#6B7280]">Termin: {form.termin} • {form.paymentMethod}</div>
+                  <div className="text-[#6B7280]">Jatuh Tempo: {form.dueDate} ({dueLabel(form.dueMode || '14')})</div>
+                  <div className="text-[#6B7280]">Termin: {terminLabel(form.termin || '50/50')} • {form.paymentMethod}</div>
                   <div className="text-[#6B7280]">PPN: {form.taxMode}</div>
                 </div>
               </div>
@@ -240,7 +276,7 @@ export default function InvoiceBuilder() {
                   <div className="flex justify-between text-[#6B7280]"><span>Diskon</span><span>-{formatRupiah(disc)}</span></div>
                   {form.taxMode==='add11' && <div className="flex justify-between text-[#6B7280]"><span>PPN 11%</span><span>{formatRupiah(tax)}</span></div>}
                   <div className="flex justify-between font-semibold text-[#111827] border-t border-[#E5E7EB] pt-2 text-[14px]"><span>Total</span><span>{formatRupiah(total)}</span></div>
-                  <div className="flex justify-between text-[#2563EB] font-medium"><span>DP ({form.termin})</span><span>{formatRupiah(dp)}</span></div>
+                  <div className="flex justify-between text-[#2563EB] font-medium"><span>DP ({terminLabel(form.termin || '50/50')})</span><span>{formatRupiah(dp)}</span></div>
                   <div className="flex justify-between font-semibold"><span>Sisa</span><span>{formatRupiah(total-dp)}</span></div>
                 </div>
               </div>

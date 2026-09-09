@@ -1,6 +1,8 @@
-// Node seeder — generate SQLite file fisik untuk opensource
+// Node seeder — generate SQLite file fisik untuk opensource (Seeder → SQLite)
+// Sumber tunggal data: src/db/defaultSeeder.ts — file ini duplikasi data agar bisa jalan di Node ESM tanpa TS loader.
+// Jika edit seeder, WAJIB sync manual ke array di bawah, lalu `npm run seed` untuk regenerate .db
 // Usage: node scripts/seed.mjs  atau  npm run seed
-// Output: ../data/bikin-invoice.db  dan  ../public/bikin-invoice.db (untuk fetch di browser jika mau)
+// Output: data/bikin-invoice.db  dan  public/bikin-invoice.db (untuk fetch di browser saat IndexedDB kosong)
 
 import fs from 'fs'
 import path from 'path'
@@ -15,11 +17,9 @@ const outData = path.join(frontendRoot, 'data/bikin-invoice.db')
 const outPublic = path.join(frontendRoot, 'public/bikin-invoice.db')
 const sqlDumpPath = path.join(frontendRoot, 'data/seed.sql')
 
-// Import dummy data via dynamic JSON? Kita hardcode import via fs read dummy.ts tidak mudah di Node ESM
-// Jadi kita duplikasi data dummy di sini (keep sync dengan src/data/dummy.ts)
-// Untuk maintainability, kita baca dari dummy.ts via simple parser atau copy manual
-// Simpler: kita define ulang minimal (ambil dari dummy.ts yang sudah ada)
-// Kita akan coba import via --loader? Lebih simpel: kita baca file dummy.ts dan eval? Untuk sekarang kita duplikasi manual:
+// Data seeder — DUPLIKASI dari src/db/defaultSeeder.ts (jangan edit terpisah, keep sync)
+// Alasan duplikasi: Node ESM murni tidak bisa import TS langsung tanpa loader.
+// Versi seeder: v2 — 10 clients, 8 projects, 12 invoices, 6 contracts (sama dengan defaultSeeder.ts)
 
 const dummyClients = [
   { id: 'c1', name: 'Budi Santoso', company: 'CV Barokah Jaya', email: 'budi@barokahjaya.id', phone: '+6281234567890', address: 'Jl. Merdeka No. 12, Jakarta', npwp: '01.234.567.8-012.000', createdAt: '2026-01-15' },
@@ -30,7 +30,7 @@ const dummyClients = [
   { id: 'c6', name: 'Dewi Lestari', company: 'CV Cipta Karya', email: 'dewi@ciptakarya.id', phone: '+6281234567895', address: 'Jl. Diponegoro No. 18, Semarang', createdAt: '2026-03-18' },
   { id: 'c7', name: 'Hendra Gunawan', company: 'PT Digital Nusantara', email: 'hendra@digitalnusantara.co.id', phone: '+6281234567896', address: 'Jl. HR Rasuna Said No. 22, Jakarta', createdAt: '2026-04-05' },
   { id: 'c8', name: 'Maya Sari', company: 'Butik Maya Collection', email: 'maya@mayacollection.com', phone: '+6281234567897', address: 'Jl. Malioboro No. 7, Yogyakarta', createdAt: '2026-04-12' },
-  { id: 'c9', name: 'Farhan Alamsyah', company: 'PT Arka Studio', email: 'farhan@arkastudio.id', phone: '+6281234567898', address: 'Jl. Teknologi No. 9, Jakarta', createdAt: '2026-05-01' },
+  { id: 'c9', name: 'Farhan Alamsyah', company: 'PT Kreasi Digital', email: 'farhan@kreasidigital.id', phone: '+6281234567898', address: 'Jl. Teknologi No. 9, Jakarta', createdAt: '2026-05-01' },
   { id: 'c10', name: 'Lina Hartati', company: 'Klinik Sehat Bersama', email: 'lina@sehatbersama.id', phone: '+6281234567899', address: 'Jl. Kesehatan No. 14, Bali', createdAt: '2026-05-20' },
 ]
 const dummyProjects = [
@@ -51,14 +51,14 @@ const dummyInvoices = [
   { id: 'inv5', number: 'INV-2026-0005', clientId: 'c4', projectId: 'p4', items: [{id:'i1', name:'Website Yayasan', desc:'', qty:1, unit:'paket', price:8000000, discount:0}], subtotal:8000000, discountType:'fixed', discountValue:0, taxMode:'include', taxValue:0, total:8000000, termin:'4x', paymentMethod:'termin', dueMode:'30', dueDate:'2026-10-01', issueDate:'2026-09-05', lateFee:'none', extraCost:'none', notes:'', terms:'4x termin', templateId:'minimal', status:'planned', createdAt:'2026-09-05' },
   { id: 'inv6', number: 'INV-2026-0006', clientId: 'c7', projectId: 'p7', items: [{id:'i1', name:'SaaS Dashboard', desc:'', qty:1, unit:'paket', price:15000000, discount:0},{id:'i2', name:'Maintenance 3 Bulan', desc:'', qty:3, unit:'bulan', price:500000, discount:0}], subtotal:16500000, discountType:'fixed', discountValue:0, taxMode:'add11', taxValue:1815000, total:18315000, termin:'30/40/30', paymentMethod:'transfer', dueMode:'30', dueDate:'2026-10-10', issueDate:'2026-09-07', lateFee:'1day', extraCost:'maintenance', notes:'', terms:'', templateId:'corporate', status:'planned', createdAt:'2026-09-07' },
   { id: 'inv7', number: 'INV-2026-0007', clientId: 'c8', projectId: 'p8', items: [{id:'i1', name:'E-commerce Butik', desc:'', qty:1, unit:'paket', price:9000000, discount:0}], subtotal:9000000, discountType:'fixed', discountValue:0, taxMode:'none', taxValue:0, total:9000000, termin:'50/50', paymentMethod:'transfer', dueMode:'14', dueDate:'2026-09-18', issueDate:'2026-09-03', lateFee:'none', extraCost:'none', notes:'', terms:'', templateId:'creative', status:'done', createdAt:'2026-09-03' },
-  { id: 'inv8', number: 'INV-2026-0008', clientId: 'c1', projectId: 'p1', items: [{id:'i1', name:'Tambahan Fitur Blog', desc:'', qty:1, unit:'paket', price:1000000, discount:0}], subtotal:1000000, discountType:'fixed', discountValue:0, taxMode:'none', taxValue:0, total:1000000, termin:'100', paymentMethod:'cash', dueMode:'7', dueDate:'2026-09-20', issueDate:'2026-09-06', lateFee:'none', extraCost:'none', notes:'', terms:'', templateId:'minimal', status:'planned', createdAt:'2026-09-06' },
+  { id: 'inv8', number: 'INV-2026-0008', clientId: 'c1', projectId: 'p1', items: [{id:'i1', name:'Tambahan Fitur Blog', desc:'', qty:1, unit:'paket', price:1000000, discount:0}], subtotal:1000000, discountType:'fixed', discountValue:0, taxMode:'none', taxValue:0, total:1000000, termin:'25/75', paymentMethod:'cash', dueMode:'3', dueDate:'2026-09-09', issueDate:'2026-09-06', lateFee:'none', extraCost:'none', notes:'DP 25% pelunasan 75%', terms:'Termin DP 25% - Pelunasan 75%', templateId:'minimal', status:'planned', createdAt:'2026-09-06' },
   { id: 'inv9', number: 'INV-2026-0009', clientId: 'c6', projectId: 'p6', items: [{id:'i1', name:'Portfolio Arsitek', desc:'', qty:1, unit:'paket', price:5500000, discount:0}], subtotal:5500000, discountType:'fixed', discountValue:0, taxMode:'none', taxValue:0, total:5500000, termin:'50/50', paymentMethod:'transfer', dueMode:'14', dueDate:'2026-08-30', issueDate:'2026-08-15', lateFee:'none', extraCost:'none', notes:'', terms:'', templateId:'minimal', status:'done', createdAt:'2026-08-15' },
   { id: 'inv10', number: 'INV-2026-0010', clientId: 'c2', projectId: 'p2', items: [{id:'i1', name:'DP E-commerce', desc:'', qty:1, unit:'paket', price:3600000, discount:0}], subtotal:3600000, discountType:'fixed', discountValue:0, taxMode:'none', taxValue:0, total:3600000, termin:'50/50', paymentMethod:'transfer', dueMode:'14', dueDate:'2026-09-12', issueDate:'2026-08-29', lateFee:'none', extraCost:'none', notes:'DP 30%', terms:'', templateId:'corporate', status:'in_progress', createdAt:'2026-08-29' },
-  { id: 'inv11', number: 'INV-2026-0011', clientId: 'c10', projectId: undefined, items: [{id:'i1', name:'Konsultasi Website', desc:'', qty:2, unit:'hari', price:750000, discount:0}], subtotal:1500000, discountType:'fixed', discountValue:0, taxMode:'none', taxValue:0, total:1500000, termin:'100', paymentMethod:'transfer', dueMode:'7', dueDate:'2026-09-10', issueDate:'2026-09-04', lateFee:'none', extraCost:'none', notes:'', terms:'', templateId:'minimal', status:'done', createdAt:'2026-09-04' },
-  { id: 'inv12', number: 'INV-2026-0012', clientId: 'c9', projectId: undefined, items: [{id:'i1', name:'Maintenance Arka Studio', desc:'', qty:1, unit:'bulan', price:2000000, discount:0}], subtotal:2000000, discountType:'fixed', discountValue:0, taxMode:'none', taxValue:0, total:2000000, termin:'100', paymentMethod:'transfer', dueMode:'30', dueDate:'2026-09-30', issueDate:'2026-09-08', lateFee:'none', extraCost:'none', notes:'', terms:'', templateId:'minimal', status:'planned', createdAt:'2026-09-08' },
+  { id: 'inv11', number: 'INV-2026-0011', clientId: 'c10', projectId: undefined, items: [{id:'i1', name:'Konsultasi Website', desc:'', qty:2, unit:'hari', price:750000, discount:0}], subtotal:1500000, discountType:'fixed', discountValue:0, taxMode:'none', taxValue:0, total:1500000, termin:'25/75', paymentMethod:'transfer', dueMode:'1', dueDate:'2026-09-05', issueDate:'2026-09-04', lateFee:'none', extraCost:'none', notes:'DP 25% pelunasan 75%', terms:'Termin DP 25% - Pelunasan 75%', templateId:'minimal', status:'done', createdAt:'2026-09-04' },
+  { id: 'inv12', number: 'INV-2026-0012', clientId: 'c9', projectId: undefined, items: [{id:'i1', name:'Layanan Maintenance Bulanan', desc:'', qty:1, unit:'bulan', price:2000000, discount:0}], subtotal:2000000, discountType:'fixed', discountValue:0, taxMode:'none', taxValue:0, total:2000000, termin:'100', paymentMethod:'transfer', dueMode:'30', dueDate:'2026-09-30', issueDate:'2026-09-08', lateFee:'none', extraCost:'none', notes:'', terms:'', templateId:'minimal', status:'planned', createdAt:'2026-09-08' },
 ]
 const dummyContracts = [
-  { id: 'k1', number: 'SPK-2026-0001', clientId: 'c1', projectId: 'p1', title: 'SPK Website Company Profile CV Barokah', party1Name: 'Arka Studio', party1Role: 'PT', party2Name: 'CV Barokah Jaya', party2Role: 'CV', duration: '21', revisi: '3', warranty: '30', materai: true, signCount: 2, ipRights: 'client', templateId: 'minimal', status: 'in_progress', createdAt: '2026-09-08', clauses: [
+  { id: 'k1', number: 'SPK-2026-0001', clientId: 'c1', projectId: 'p1', title: 'SPK Website Company Profile CV Barokah', party1Name: 'Usaha Saya', party1Role: 'PT', party2Name: 'CV Barokah Jaya', party2Role: 'CV', duration: '21', revisi: '3', warranty: '30', materai: true, signCount: 2, ipRights: 'client', templateId: 'minimal', status: 'in_progress', createdAt: '2026-09-08', clauses: [
     {id:'cl1', title:'Pasal 1 — Ruang Lingkup Pekerjaan', content:'<p>Pihak Pertama akan mengerjakan Website Company Profile 5 Halaman untuk Pihak Kedua meliputi desain UI/UX, development responsif, dan integrasi CMS.</p>', order:1, enabled:true},
     {id:'cl2', title:'Pasal 2 — Biaya dan Termin', content:'<p>Total biaya Rp 4.500.000 dengan termin 50% DP dan 50% pelunasan. Pembayaran via Transfer Bank.</p>', order:2, enabled:true},
     {id:'cl3', title:'Pasal 3 — Jadwal dan Keterlambatan', content:'<p>Pekerjaan diselesaikan dalam 21 hari kalender sejak DP diterima. Keterlambatan dikenakan denda 1% per hari.</p>', order:3, enabled:true},
@@ -68,7 +68,7 @@ const dummyContracts = [
     {id:'cl7', title:'Pasal 7 — Pembatalan dan Force Majeure', content:'<p>Pembatalan sepihak dikenakan potongan DP. Force majeure diselesaikan musyawarah.</p>', order:7, enabled:true},
     {id:'cl8', title:'Pasal 8 — Penutup dan Tanda Tangan', content:'<p>Perjanjian ini dibuat bermaterai Rp10.000 dan ditandatangani kedua belah pihak.</p>', order:8, enabled:true},
   ]},
-  { id: 'k2', number: 'SPK-2026-0002', clientId: 'c2', projectId: 'p2', title: 'SPK E-commerce PT Maju Makmur', party1Name: 'Arka Studio', party1Role: 'PT', party2Name: 'PT Maju Makmur', party2Role: 'PT', duration: '60', revisi: '5', warranty: '90', materai: true, signCount: 3, witnessName: 'Budi Saksi', ipRights: 'client', templateId: 'corporate', status: 'planned', createdAt: '2026-09-02', clauses: [
+  { id: 'k2', number: 'SPK-2026-0002', clientId: 'c2', projectId: 'p2', title: 'SPK E-commerce PT Maju Makmur', party1Name: 'Usaha Saya', party1Role: 'PT', party2Name: 'PT Maju Makmur', party2Role: 'PT', duration: '60', revisi: '5', warranty: '90', materai: true, signCount: 3, witnessName: 'Budi Saksi', ipRights: 'client', templateId: 'corporate', status: 'planned', createdAt: '2026-09-02', clauses: [
     {id:'cl1', title:'Pasal 1 — Ruang Lingkup', content:'<p>Pembuatan E-commerce Fashion lengkap dengan payment gateway.</p>', order:1, enabled:true},
     {id:'cl2', title:'Pasal 2 — Biaya', content:'<p>Total Rp 12.000.000 termin 30/40/30.</p>', order:2, enabled:true},
     {id:'cl3', title:'Pasal 3 — Jadwal', content:'<p>60 hari kerja.</p>', order:3, enabled:true},
@@ -78,12 +78,12 @@ const dummyContracts = [
     {id:'cl7', title:'Pasal 7 — Pembatalan', content:'<p>...</p>', order:7, enabled:true},
     {id:'cl8', title:'Pasal 8 — Penutup', content:'<p>Bermaterai, 3 pihak.</p>', order:8, enabled:true},
   ]},
-  { id: 'k3', number: 'SPK-2026-0003', clientId: 'c3', projectId: 'p3', title: 'SPK Landing Page Toko Berkah', party1Name: 'Arka Studio', party1Role: 'PT', party2Name: 'Toko Berkah Abadi', party2Role: 'CV', duration: '7', revisi: '2', warranty: '7', materai: false, signCount: 2, ipRights: 'client', templateId: 'creative', status: 'done', createdAt: '2026-08-20', clauses: [
+  { id: 'k3', number: 'SPK-2026-0003', clientId: 'c3', projectId: 'p3', title: 'SPK Landing Page Toko Berkah', party1Name: 'Usaha Saya', party1Role: 'PT', party2Name: 'Toko Berkah Abadi', party2Role: 'CV', duration: '7', revisi: '2', warranty: '7', materai: false, signCount: 2, ipRights: 'client', templateId: 'creative', status: 'done', createdAt: '2026-08-20', clauses: [
     {id:'cl1', title:'Pasal 1 — Ruang Lingkup', content:'<p>Landing page promo.</p>', order:1, enabled:true},
     {id:'cl2', title:'Pasal 2 — Biaya', content:'<p>Rp 2.500.000 lunas di awal.</p>', order:2, enabled:true},
     {id:'cl8', title:'Pasal 8 — Penutup', content:'<p>Tanpa materai.</p>', order:8, enabled:true},
   ]},
-  { id: 'k4', number: 'SPK-2026-0004', clientId: 'c5', projectId: 'p5', title: 'SPK Redesign PT Sukses Selalu', party1Name: 'Arka Studio', party1Role: 'PT', party2Name: 'PT Sukses Selalu', party2Role: 'PT', duration: '21', revisi: '3', warranty: '30', materai: true, signCount: 2, ipRights: 'shared', templateId: 'minimal', status: 'in_progress', createdAt: '2026-09-01', clauses: [
+  { id: 'k4', number: 'SPK-2026-0004', clientId: 'c5', projectId: 'p5', title: 'SPK Redesign PT Sukses Selalu', party1Name: 'Usaha Saya', party1Role: 'PT', party2Name: 'PT Sukses Selalu', party2Role: 'PT', duration: '21', revisi: '3', warranty: '30', materai: true, signCount: 2, ipRights: 'shared', templateId: 'minimal', status: 'in_progress', createdAt: '2026-09-01', clauses: [
     {id:'cl1', title:'Pasal 1 — Ruang Lingkup', content:'<p>Redesign website.</p>', order:1, enabled:true},
     {id:'cl2', title:'Pasal 2 — Biaya', content:'<p>Rp 5.500.000</p>', order:2, enabled:true},
     {id:'cl3', title:'Pasal 3 — Jadwal', content:'<p>21 hari.</p>', order:3, enabled:true},
@@ -93,24 +93,24 @@ const dummyContracts = [
     {id:'cl7', title:'Pasal 7 — Pembatalan', content:'<p>...</p>', order:7, enabled:true},
     {id:'cl8', title:'Pasal 8 — Penutup', content:'<p>Bermaterai.</p>', order:8, enabled:true},
   ]},
-  { id: 'k5', number: 'SPK-2026-0005', clientId: 'c7', projectId: 'p7', title: 'SPK SaaS Digital Nusantara', party1Name: 'Arka Studio', party1Role: 'PT', party2Name: 'PT Digital Nusantara', party2Role: 'PT', duration: '60', revisi: 'unlimited', warranty: '90', materai: true, signCount: 2, ipRights: 'dev', templateId: 'corporate', status: 'planned', createdAt: '2026-09-07', clauses: [
+  { id: 'k5', number: 'SPK-2026-0005', clientId: 'c7', projectId: 'p7', title: 'SPK SaaS Digital Nusantara', party1Name: 'Usaha Saya', party1Role: 'PT', party2Name: 'PT Digital Nusantara', party2Role: 'PT', duration: '60', revisi: 'unlimited', warranty: '90', materai: true, signCount: 2, ipRights: 'dev', templateId: 'corporate', status: 'planned', createdAt: '2026-09-07', clauses: [
     {id:'cl1', title:'Pasal 1 — Ruang Lingkup', content:'<p>Dashboard SaaS.</p>', order:1, enabled:true},
     {id:'cl2', title:'Pasal 2 — Biaya', content:'<p>Rp 18.315.000</p>', order:2, enabled:true},
     {id:'cl8', title:'Pasal 8 — Penutup', content:'<p>Bermaterai.</p>', order:8, enabled:true},
   ]},
-  { id: 'k6', number: 'SPK-2026-0006', clientId: 'c8', projectId: 'p8', title: 'SPK E-commerce Butik Maya', party1Name: 'Arka Studio', party1Role: 'PT', party2Name: 'Butik Maya Collection', party2Role: 'Personal', duration: '30', revisi: '3', warranty: '30', materai: false, signCount: 2, ipRights: 'client', templateId: 'minimal', status: 'done', createdAt: '2026-09-03', clauses: [
+  { id: 'k6', number: 'SPK-2026-0006', clientId: 'c8', projectId: 'p8', title: 'SPK E-commerce Butik Maya', party1Name: 'Usaha Saya', party1Role: 'PT', party2Name: 'Butik Maya Collection', party2Role: 'Personal', duration: '30', revisi: '3', warranty: '30', materai: false, signCount: 2, ipRights: 'client', templateId: 'minimal', status: 'done', createdAt: '2026-09-03', clauses: [
     {id:'cl1', title:'Pasal 1 — Ruang Lingkup', content:'<p>E-commerce butik.</p>', order:1, enabled:true},
     {id:'cl8', title:'Pasal 8 — Penutup', content:'<p>Tanpa materai, 2 pihak.</p>', order:8, enabled:true},
   ]},
 ]
 const dummySettings = {
-  businessName: 'Arka Studio',
+  businessName: 'Usaha Saya',
   address: 'Jl. Teknologi No. 9, Jakarta Selatan 12190',
   phone: '+6281234567899',
-  email: 'hello@arkastudio.id',
+  email: 'hello@usahasaya.id',
   bankName: 'BCA',
   bankAccount: '1234567890',
-  bankHolder: 'Arka Studio',
+  bankHolder: 'Usaha Saya',
   npwp: '01.234.567.8-012.000',
   defaultTerms: 'Pembayaran via Transfer BCA. DP 50% sebelum pengerjaan, pelunasan sebelum serah terima. Keterlambatan dikenakan denda 1% per hari.',
   defaultNotes: 'Terima kasih atas kepercayaan Anda.',
@@ -162,17 +162,17 @@ async function main() {
   fs.writeFileSync(outData, Buffer.from(binary))
   fs.writeFileSync(outPublic, Buffer.from(binary))
 
-  // Generate seed.sql
+  // Generate seed.sql — hanya schema, data ada di binary .db (SQLite)
   const dump = db.exec("SELECT sql FROM sqlite_master WHERE type='table'")[0]?.values.map(v=>v[0]).join(';\n') || ''
   let seedSql = dump + ';\n\n'
-  seedSql += `-- Seeder Default — Bikin Invoice v1 (sql.js)\n`
+  seedSql += `-- Seeder — Bikin Invoice v2 (sql.js) — sumber: src/db/defaultSeeder.ts → SQLite\n`
   seedSql += `-- Generated: ${new Date().toISOString()}\n`
   seedSql += `-- Clients: ${dummyClients.length}, Projects: ${dummyProjects.length}, Invoices: ${dummyInvoices.length}, Contracts: ${dummyContracts.length}\n`
   fs.writeFileSync(sqlDumpPath, seedSql + '\n-- Data inserts omitted (binary .db is source of truth, sql dump for schema only)\n')
 
-  console.log(`✅ Seeder sukses`)
+  console.log(`✅ Seeder sukses — SQLite dari seeder (src/db/defaultSeeder.ts)`)
   console.log(`   - ${outData} (${(binary.length/1024).toFixed(1)} KB)`)
-  console.log(`   - ${outPublic} (untuk fetch di browser)`)
+  console.log(`   - ${outPublic} (untuk fetch di browser saat IndexedDB kosong)`)
   console.log(`   - ${sqlDumpPath}`)
   console.log(`   - Clients: ${dummyClients.length}, Projects: ${dummyProjects.length}, Invoices: ${dummyInvoices.length}, Contracts: ${dummyContracts.length}`)
 

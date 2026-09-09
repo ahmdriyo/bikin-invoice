@@ -48,7 +48,7 @@ export default function Clients() {
       <div className="flex items-center gap-4 mb-6">
         <div>
           <h1 className="text-[24px] font-semibold text-[#111827]">Clients</h1>
-          <p className="text-[12px] text-[#6B7280]">{clients.length} clients • dummy + localStorage</p>
+          <p className="text-[12px] text-[#6B7280]">{clients.length} clients • SQLite lokal (seeder + IndexedDB)</p>
         </div>
         <div className="ml-auto flex items-center gap-3">
           <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF]" /><Input value={q} onChange={e=>setQ(e.target.value)} placeholder="Cari perusahaan / nama" className="pl-9 w-[260px] rounded-full bg-white" /></div>

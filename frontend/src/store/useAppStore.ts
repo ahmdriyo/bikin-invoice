@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import type { Client, Project, Invoice, Contract, Settings } from '@/types'
 import { repo } from '@/db/repo'
 import { sqlite } from '@/db/sqlite'
-import { dummySettings } from '@/data/dummy'
+import { defaultSettings } from '@/db/defaultSeeder'
 
 type AppState = {
   ready: boolean
@@ -25,7 +25,8 @@ type AppState = {
   updateContract: (id: string, k: Partial<Contract>) => Promise<void>
   deleteContract: (id: string) => Promise<void>
   updateSettings: (s: Partial<Settings>) => Promise<void>
-  resetDummy: () => Promise<void>
+  resetDummy: () => Promise<void> // deprecated, use resetSeeder
+  resetSeeder: () => Promise<void>
   exportDB: () => Promise<void>
   importDB: (file: File) => Promise<void>
   clearRealData: () => Promise<void>
@@ -37,7 +38,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   projects: [],
   invoices: [],
   contracts: [],
-  settings: dummySettings,
+  settings: defaultSettings,
 
   loadAll: async () => {
     await sqlite.init()
@@ -53,7 +54,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       projects,
       invoices,
       contracts,
-      settings: settings || dummySettings,
+      settings: settings || defaultSettings,
       ready: true,
     })
   },
@@ -117,6 +118,11 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   resetDummy: async () => {
+    const { seedDummyAgain } = await import('@/db/seed')
+    await seedDummyAgain()
+    await get().loadAll()
+  },
+  resetSeeder: async () => {
     const { seedDummyAgain } = await import('@/db/seed')
     await seedDummyAgain()
     await get().loadAll()

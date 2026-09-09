@@ -20,14 +20,18 @@ Web app **Next.js 15 (App Router)** untuk bikin **Invoice** & **Kontrak Kerja/SP
 Semua tabel (`clients`, `projects`, `invoices`, `contracts`, `settings`, `counters`) ada di **SQLite WASM di browser**.
 
 - **Lokasi fisik:** Browser `IndexedDB` → DB `bikin-invoice-sqlite` → store `kv` key `db-binary` + backup `localStorage` base64. File bisa di-export jadi `bikin-invoice-YYYY-MM-DD.db` via **Settings → Export .db**.
-- **Data Real:** Klik **Settings → Mulai Data Real (Kosong)** untuk hapus dummy & mulai isi data beneran. Data langsung tersimpan SQLite, survive reload.
-- **Opensource:** Tidak perlu `wrangler`, `D1`, `R2`, atau env. Cukup clone & `npm run dev`. Jika mau share DB, export lalu commit ke `data/bikin-invoice.db` (opsional).
+- **Seeder → SQLite:** Data awal dari `src/db/defaultSeeder.ts` (10 clients, 8 projects, 12 invoices, 6 kontrak) otomatis di-seed ke SQLite saat IndexedDB kosong. Browser fetch `/bikin-invoice.db` (copy dari `data/bikin-invoice.db`) via `src/db/sqlite.ts` + `src/db/seeder.ts`. Tidak ada `dummy.ts` runtime — semua dari SQLite.
+- **Data Kosong:** Klik **Settings → Mulai Data Kosong** untuk hapus seeder & mulai isi data beneran. Data langsung tersimpan SQLite, survive reload. Klik **Reset Seeder (Demo)** untuk kembalikan data awal.
+- **Opensource:** Tidak perlu `wrangler`, `D1`, `R2`, atau env. Cukup clone & `npm run dev`. Jika mau regenerate seeder DB manual: `npm run seed` (generate `data/bikin-invoice.db` + `public/bikin-invoice.db` dari `src/db/defaultSeeder.ts`).
 
 ```
-frontend/src/db/sqlite.ts  # init sql.js, persist IndexedDB, export/import .db
-frontend/src/db/repo.ts    # CRUD clients/projects/invoices/contracts/settings
-frontend/src/db/seed.ts    # seed dummy atau kosong
-frontend/src/store/useAppStore.ts # Zustand + SQLite (bukan localStorage dummy)
+frontend/src/db/sqlite.ts        # init sql.js, persist IndexedDB, export/import .db
+frontend/src/db/defaultSeeder.ts # SINGLE SOURCE OF TRUTH seeder (10c/8p/12i/6k + settings + templates + clauses)
+frontend/src/db/seeder.ts        # runDefaultSeeder() — auto saat DB kosong
+frontend/src/db/repo.ts          # CRUD clients/projects/invoices/contracts/settings (SQLite)
+frontend/src/db/seed.ts          # wrapper compat (seedIfEmpty, reseed)
+frontend/src/store/useAppStore.ts # Zustand + SQLite (loadAll dari repo, bukan dummy)
+frontend/src/data/dummy.ts       # @deprecated — re-export dari defaultSeeder untuk compat only
 ```
 
 ## 🚀 Cara Jalan (Lokal, Data Real)
@@ -49,12 +53,12 @@ npm run build
 npm run start # preview prod di http://localhost:3000
 ```
 
-1. Buka **Settings** → cek stats SQLite (clients/projects/invoices/contracts)
-2. Klik **Mulai Data Real (Kosong)** jika mau hapus dummy
-3. Buat **Clients** & **Projects** baru
-4. Buat **Invoice** (isi item + pilih dropdown termin/PPN/tempo) → **Download PDF** (1 halaman)
-5. Buat **Kontrak** (isi dropdown durasi/revisi/garansi/materai/TTD → Generate AI Mock) → **Download PDF**
-6. Backup: **Settings → Export .db** (simpan di `data/` jika mau di-commit)
+1. Buka **Settings** → cek stats SQLite (clients/projects/invoices/contracts) — data sudah dari **Seeder SQLite** (10/8/12/6 otomatis)
+2. Klik **Mulai Data Kosong** jika mau hapus seeder & mulai dari nol (opsional, untuk data real)
+3. Buat **Clients** & **Projects** baru — langsung tersimpan SQLite (IndexedDB)
+4. Buat **Invoice** (isi item + pilih dropdown termin/PPN/tempo) → **Download PDF** (1 halaman, dari SQLite)
+5. Buat **Kontrak** (isi dropdown durasi/revisi/garansi/materai/TTD → Generate AI Mock dari `seederClausesMock`) → **Download PDF**
+6. Backup: **Settings → Export .db** (simpan di `data/` jika mau di-commit) atau `npm run seed` untuk regenerate dari `src/db/defaultSeeder.ts`
 
 ## 📦 Struktur (Semua di dalam `frontend/`)
 
@@ -95,5 +99,5 @@ Jika mau deploy lagi, tinggal aktifkan `backend/` Workers (lihat `backend/README
 
 ## 📄 Lisensi
 
-Opensource — pakai bebas untuk freelancer/agency. PRD & dummy data untuk demo.
+Opensource — pakai bebas untuk freelancer/agency. PRD & seeder SQLite untuk demo (bukan dummy in-memory).
 

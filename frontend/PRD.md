@@ -16,7 +16,7 @@
 |------|------------|
 | **Nama Produk** | Bikin Invoice — Generator Invoice & Kontrak Kerja untuk Freelancer/Agency Website |
 | **Jenis Produk** | Web App Responsive (Desktop-first) — Membuat, Preview, Simpan R2, Export PDF Invoice & Kontrak |
-| **Pemilik Produk** | Personal / Arka Studio — Single user MVP, siap multi-user fase 2 |
+| **Pemilik Produk** | Personal — Single user MVP, siap multi-user fase 2 |
 | **Pengguna Utama** | Freelancer web, agency kecil, studio kreatif yang menjual jasa pembuatan website & layanan IT |
 | **Platform Awal** | Responsive Web: Desktop 1440px, Tablet 768px, Mobile 320px |
 | **Bahasa** | Indonesia (Full) — English fase 2 |
@@ -504,7 +504,7 @@ order: number; enabled: boolean; }
 type Contract = { id: string; number: string; clientId: string; projectId?: string; title: string; party1Name: string; party1Role: string; party2Name: string; party2Role: string; duration: '7'|'14'|'21'|'30'|'60'|'custom'; revisi: '1'|'2'|'3'|'5'|'unlimited'; warranty: '7'|'30'|'90'|'none'; materai: boolean; signCount: 1|2|3; witnessName?: string; ipRights: 'client'|'dev'|'shared'; clauses: Clause[]; templateId: string; status: 'planned'|'in_progress'|'done'; createdAt: string; }
 ```
 
-**Dummy Counts:** 10 clients (CV Barokah, PT Maju Jaya, Toko Berkah, dll), 8 projects, 12 invoices (sebar status Planned/In Progress/Done), 6 contracts, 1 settings (Arka Studio), 3 templates.
+**Dummy Counts:** 10 clients (CV Barokah, PT Maju Jaya, Toko Berkah, dll), 8 projects, 12 invoices (sebar status Planned/In Progress/Done), 6 contracts, 1 settings (Usaha Saya), 3 templates.
 
 ### 11.2 D1 Schema (Fase BE) — `migrations/0001_init.sql`
 
@@ -539,7 +539,7 @@ Body: {
   warranty: "30",
   materai: true,
   signCount: 2,
-  party1Name: "Arka Studio",
+  party1Name: "Usaha Saya",
   party2Name: "CV Barokah",
   projectTitle: "Website Company Profile 5 Halaman",
   price: 4500000,
@@ -690,7 +690,7 @@ wrangler pages deploy frontend/dist
   "warranty": "30",
   "materai": true,
   "signCount": 2,
-  "party1Name": "Arka Studio",
+  "party1Name": "Usaha Saya",
   "party1Role": "PT",
   "party2Name": "CV Barokah",
   "party2Role": "CV",

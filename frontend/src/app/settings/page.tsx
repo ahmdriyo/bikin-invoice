@@ -92,23 +92,25 @@ export default function Settings() {
           </label>
         </div>
         <div className="grid grid-cols-2 gap-3 mt-3">
-          <Button variant="secondary" onClick={async () => { if (confirm('Hapus semua data real & mulai kosong? (settings tetap)')) { await clearRealData(); location.reload() } }}>🗑 Mulai Data Real (Kosong)</Button>
-          <Button variant="secondary" onClick={async () => { if (confirm('Reset ke dummy awal? Data real akan hilang')) { await resetDummy(); location.reload() } }}>↺ Reset Dummy</Button>
+          <Button variant="secondary" onClick={async () => { if (confirm('Hapus semua data & mulai kosong? (settings tetap)')) { await clearRealData(); location.reload() } }}>🗑 Mulai Data Kosong</Button>
+          <Button variant="secondary" onClick={async () => { if (confirm('Reset ke data seeder awal? Data saat ini akan diganti')) { await resetDummy(); location.reload() } }}>↺ Reset Seeder (Demo)</Button>
         </div>
         <div className="text-[11px] text-[#9CA3AF] mt-3">
-          <div>• <b>Data Real:</b> Klik “Mulai Data Real (Kosong)” untuk hapus dummy & mulai isi client/project/invoice/kontrak beneran. Data tersimpan lokal, bisa export .db kapan saja.</div>
-          <div>• <b>Opensource:</b> Cukup <code>npm install && npm run dev</code> — tanpa env, tanpa Cloudflare, tanpa R2/D1.</div>
+          <div>• <b>Data Seeder:</b> Data awal berasal dari <code>src/db/defaultSeeder.ts</code> → disimpan ke <code>bikin-invoice.db</code> (SQLite + IndexedDB). Klik “Reset Seeder (Demo)” untuk kembalikan 10 clients/8 projects/12 invoices/6 kontrak.</div>
+          <div>• <b>Data Real:</b> Klik “Mulai Data Kosong” untuk hapus semua & mulai isi client/project/invoice/kontrak beneran. Data tersimpan lokal (SQLite), bisa export .db kapan saja.</div>
+          <div>• <b>Opensource:</b> Cukup <code>npm install && npm run dev</code> — tanpa env, tanpa Cloudflare, tanpa R2/D1. Build seeder: <code>npm run seed</code>.</div>
           <div>• <b>Lokasi file:</b> Browser IndexedDB → key `bikin-invoice-sqlite`. Export untuk dapat file `bikin-invoice-YYYY-MM-DD.db` di folder project jika mau commit.</div>
         </div>
       </Card>
 
       <Card className="p-4 mt-4 bg-[#F9FAFB] border-dashed">
-        <div className="text-[12px] font-medium text-[#111827]">Cara Pakai Data Real (Lokal)</div>
+        <div className="text-[12px] font-medium text-[#111827]">Cara Pakai SQLite Lokal (Seeder)</div>
         <ol className="text-[11px] text-[#6B7280] mt-2 list-decimal list-inside space-y-1">
-          <li>Klik “Mulai Data Real (Kosong)” di atas</li>
-          <li>Buat Client & Project baru di menu Clients/Projects</li>
-          <li>Buat Invoice (dropdown Opsi A) & Kontrak (dropdown Opsi B + Generate AI Mock)</li>
-          <li>Export .db secara berkala untuk backup — file bisa di-commit ke repo sebagai `data/bikin-invoice.db` jika mau</li>
+          <li>Data awal otomatis dari <code>src/db/defaultSeeder.ts</code> → <code>bikin-invoice.db</code> saat IndexedDB kosong (via <code>src/components/providers.tsx</code>)</li>
+          <li>Klik “Mulai Data Kosong” jika mau hapus seeder & mulai dari nol</li>
+          <li>Buat Client & Project baru di menu Clients/Projects — langsung tersimpan SQLite</li>
+          <li>Buat Invoice (dropdown Opsi A) & Kontrak (dropdown Opsi B + Generate AI Mock) — langsung tersimpan SQLite</li>
+          <li>Export .db secara berkala untuk backup — file bisa di-commit ke repo sebagai <code>data/bikin-invoice.db</code> (generate via <code>npm run seed</code>)</li>
         </ol>
       </Card>
     </div>

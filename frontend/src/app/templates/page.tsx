@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Card } from '@/components/ui/card'
-import { templateConfigs } from '@/data/dummy'
+import { templateConfigs } from '@/db/defaultSeeder'
 import { cn } from '@/lib/utils'
 
 export default function Templates() {
@@ -37,7 +37,7 @@ export default function Templates() {
       <Card className="p-6 mt-6">
         <h3 className="text-[14px] font-medium">Config JSON (Level 1)</h3>
         <pre className="mt-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-[12px] p-4 text-[12px] overflow-auto">{JSON.stringify(templateConfigs.find(t=>t.id===active), null, 2)}</pre>
-        <p className="text-[11px] text-[#9CA3AF] mt-2">Fase BE: config ini disimpan di D1 & dipakai Workers untuk generate PDF R2.</p>
+        <p className="text-[11px] text-[#9CA3AF] mt-2">Config Level 1 — disimpan di SQLite lokal (seeder) & dipakai untuk preview/PDF. Sumber: <code>src/db/defaultSeeder.ts</code></p>
       </Card>
     </div>
   )

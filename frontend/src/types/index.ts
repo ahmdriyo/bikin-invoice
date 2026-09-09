@@ -47,10 +47,10 @@ export type Invoice = {
   taxMode: 'none' | 'add11' | 'include'
   taxValue: number
   total: number
-  termin: '50/50' | '30/40/30' | '100' | '4x' | 'custom'
+  termin: '50/50' | '25/75' | '30/40/30' | '100' | '4x' | 'custom' // custom bisa untuk DP 2% atau termin lain
   terminDetails?: { date: string; percent: number; amount: number }[]
   paymentMethod: 'transfer' | 'qris' | 'cash' | 'termin'
-  dueMode: '7' | '14' | '30' | 'custom'
+  dueMode: '1' | '3' | '7' | '14' | '30' | 'custom'
   dueDate: string
   issueDate: string
   lateFee: 'none' | '1day' | '1week' | 'custom'

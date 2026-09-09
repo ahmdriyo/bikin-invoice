@@ -18,7 +18,7 @@ const nav = [
 
 export function Sidebar() {
   const pathname = usePathname()
-  const reset = useAppStore(s => s.resetDummy)
+  const reset = useAppStore(s => s.resetSeeder)
   return (
     <aside className="w-[240px] shrink-0 bg-[#F9FAFB] border-r border-[#E5E7EB] flex flex-col h-screen sticky top-0 no-print">
       <div className="px-6 py-6">
@@ -26,7 +26,7 @@ export function Sidebar() {
           <div className="w-8 h-8 rounded-[8px] bg-[#111827] flex items-center justify-center text-white text-[12px] font-bold">BI</div>
           <div>
             <div className="text-[14px] font-semibold text-[#111827] leading-none">Bikin Invoice</div>
-            <div className="text-[11px] text-[#6B7280]">Arka Studio</div>
+            <div className="text-[11px] text-[#6B7280]">Lokal • SQLite</div>
           </div>
         </div>
       </div>
@@ -50,7 +50,7 @@ export function Sidebar() {
       </nav>
       <div className="p-3 border-t border-[#E5E7EB]">
         <button onClick={() => reset()} className="w-full flex items-center gap-2 px-3 py-2 rounded-full text-[12px] text-[#6B7280] hover:bg-white hover:text-[#111827] border border-transparent hover:border-[#E5E7EB]">
-          <RotateCcw className="w-4 h-4" /> Reset Dummy
+          <RotateCcw className="w-4 h-4" /> Reset Seeder
         </button>
         <div className="mt-3 px-3 text-[11px] text-[#9CA3AF] leading-relaxed">
           Next.js 15 • SQLite WASM<br/>AI Kontrak: Mock
