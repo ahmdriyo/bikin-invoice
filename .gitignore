@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build
+dist/
+build/
+.next/
+out/
+
+# Env
+.env
+.env.local
+.env.production
+.dev.vars
+.wrangler/
+.dev/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Cloudflare (nonaktif untuk SQLite lokal, keep jika mau deploy lagi)
+.cloudflare/
+wrangler.toml.bak
+
+# SQLite local - default seeder .db di-commit, tapi user real db di-ignore jika mau
+# data/bikin-invoice.db adalah default seeder (di-commit), file export user di-ignore jika <100KB? Untuk opensource, biarkan ter-commit juga sebagai default
+# Jika mau privat data real, uncomment baris di bawah:
+# data/*.db
+# data/*.sqlite
+# data/*.sqlite3
+# !data/.gitkeep
+# !data/README.md
+# !data/seed.sql
+
+# Backup Vite (jangan commit node_modules)
+frontend-vite/
+frontend-vite/node_modules/
+frontend-vite/dist/
